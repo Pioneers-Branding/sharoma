@@ -275,13 +275,25 @@
             position: relative;
             height: fit-content;
             overflow: hidden;
-            margin-top: 4rem;
+            margin-top: 5rem;
             background-color: var(--bg-hero);
         }
 
-        @media (min-width: 1024px) {
+        .desktop-hero {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
             .hero-section {
                 margin-top: 4.5rem;
+            }
+
+            .mobile-hero {
+                display: none;
+            }
+
+            .desktop-hero {
+                display: block;
             }
         }
 
@@ -406,15 +418,8 @@
         .product-image-container {
             position: relative;
             overflow: hidden;
-            height: 18rem;
             border-top-left-radius: 0.5rem;
             border-top-right-radius: 0.5rem;
-        }
-
-        @media (min-width: 1024px) {
-            .product-image-container {
-                height: 18rem;
-            }
         }
 
         .product-image {
@@ -797,25 +802,45 @@
         </div>
     </header>
 
-    <!-- Hero Carousel -->
-    <section class="hero-section">
+    <!-- Mobile Hero Carousel -->
+    <section class="hero-section mobile-hero">
         <!-- Slide 1 -->
-        <div class="hero-slide active" id="slide-0">
-            <img src="first-banner.webp" alt="Jai Guruji Sacred Candles" class="hero-img">
+        <div class="hero-slide active">
+            <img src="banner-1-mob.webp" alt="Jai Guruji Sacred Candles" class="hero-img">
         </div>
         <!-- Slide 2 -->
-        <div class="hero-slide" id="slide-1">
-            <img src="second-banner.webp" alt="Gifting Made Glowing" class="hero-img">
+        <div class="hero-slide">
+            <img src="banner-2-mob.webp" alt="Gifting Made Glowing" class="hero-img">
         </div>
-
 
         <div class="slider-controls">
-            <button class="prev-btn" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></button>
-            <button class="next-btn" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></button>
+            <button class="prev-btn"><i class="fas fa-chevron-left"></i></button>
+            <button class="next-btn"><i class="fas fa-chevron-right"></i></button>
         </div>
         <div class="hero-dots">
-            <div class="dot active" onclick="setSlide(0)"></div>
-            <div class="dot" onclick="setSlide(1)"></div>
+            <div class="dot active"></div>
+            <div class="dot"></div>
+        </div>
+    </section>
+
+    <!-- Desktop Hero Carousel -->
+    <section class="hero-section desktop-hero">
+        <!-- Slide 1 -->
+        <div class="hero-slide active">
+            <img src="first-banner.webp" alt="Desktop Banner 1" class="hero-img">
+        </div>
+        <!-- Slide 2 -->
+        <div class="hero-slide">
+            <img src="second-banner.webp" alt="Desktop Banner 2" class="hero-img">
+        </div>
+
+        <div class="slider-controls">
+            <button class="prev-btn"><i class="fas fa-chevron-left"></i></button>
+            <button class="next-btn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="hero-dots">
+            <div class="dot active"></div>
+            <div class="dot"></div>
         </div>
     </section>
 
@@ -1438,45 +1463,58 @@
 
     <script>
         // --- Slider Logic ---
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.hero-slide');
-        const dots = document.querySelectorAll('.dot');
-        const intervalTime = 5000;
-        let slideInterval;
+        document.querySelectorAll('.hero-section').forEach(section => {
+            let currentSlide = 0;
+            const slides = section.querySelectorAll('.hero-slide');
+            const dots = section.querySelectorAll('.dot');
+            const intervalTime = 5000;
+            let slideInterval;
 
-        function updateSlider() {
-            slides.forEach((slide, index) => {
-                slide.classList.remove('active');
-                dots[index].classList.remove('active');
-                if (index === currentSlide) {
-                    slide.classList.add('active');
-                    dots[index].classList.add('active');
-                }
+            if (slides.length === 0) return;
+
+            function updateSlider() {
+                slides.forEach((slide, index) => {
+                    slide.classList.remove('active');
+                    if (dots[index]) dots[index].classList.remove('active');
+                    if (index === currentSlide) {
+                        slide.classList.add('active');
+                        if (dots[index]) dots[index].classList.add('active');
+                    }
+                });
+            }
+
+            function changeSlide(direction) {
+                currentSlide = (currentSlide + direction + slides.length) % slides.length;
+                updateSlider();
+                resetInterval();
+            }
+
+            function setSlide(index) {
+                currentSlide = index;
+                updateSlider();
+                resetInterval();
+            }
+
+            function startSlideShow() {
+                slideInterval = setInterval(() => changeSlide(1), intervalTime);
+            }
+
+            function resetInterval() {
+                clearInterval(slideInterval);
+                startSlideShow();
+            }
+
+            const prevBtn = section.querySelector('.prev-btn');
+            const nextBtn = section.querySelector('.next-btn');
+            if (prevBtn) prevBtn.addEventListener('click', () => changeSlide(-1));
+            if (nextBtn) nextBtn.addEventListener('click', () => changeSlide(1));
+
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => setSlide(index));
             });
-        }
 
-        function changeSlide(direction) {
-            currentSlide = (currentSlide + direction + slides.length) % slides.length;
-            updateSlider();
-            resetInterval();
-        }
-
-        function setSlide(index) {
-            currentSlide = index;
-            updateSlider();
-            resetInterval();
-        }
-
-        function startSlideShow() {
-            slideInterval = setInterval(() => changeSlide(1), intervalTime);
-        }
-
-        function resetInterval() {
-            clearInterval(slideInterval);
             startSlideShow();
-        }
-
-        startSlideShow();
+        });
 
         // --- WhatsApp Logic ---
         function openWhatsApp(productName = '') {
